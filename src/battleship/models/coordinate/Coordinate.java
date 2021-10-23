@@ -4,7 +4,8 @@ public class Coordinate {
 
     private final int x;
     private final int y;
-    private final boolean hasShip;
+    private boolean isFree;
+    private boolean isShip;
 
     private enum status{
         NOT_FIRED,
@@ -18,8 +19,32 @@ public class Coordinate {
     public Coordinate(int x, int y) {
         this.x = x;
         this.y = y;
-        this.hasShip = false;
-        this.coordinateStatus = status.NOT_FIRED;
+        isFree = true;
+        coordinateStatus = status.NOT_FIRED;
+    }
+
+    public Coordinate(int x, int y, boolean isShip) {
+        this.x = x;
+        this.y = y;
+        isFree = false;
+        this.isShip = false;
+        coordinateStatus = status.NOT_FIRED;
+    }
+
+    public boolean IsFree() {
+        return isFree;
+    }
+
+    public boolean IsShip() {
+        return isShip;
+    }
+
+    public void Take() {
+        isFree = false;
+    }
+
+    public void SetShip() {
+        isShip = true;
     }
 
 }

@@ -5,7 +5,6 @@ import battleship.models.coordinate.Coordinate;
 public class GameCondition {
     private int height;
     private int width;
-    private Coordinate[][] battleGround;
     private int submarineCount;
     private int destroyerCount;
     private int cruiserCount;
@@ -16,18 +15,42 @@ public class GameCondition {
                          int cruiserCount, int battleshipCount, int carrierCount) {
         this.height = height;
         this.width = width;
-        this.battleGround = new Coordinate[height][width];
-
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                this.battleGround[i][j] = new Coordinate(i + 1, j + 1);
-            }
-        }
-
         this.submarineCount = submarineCount;
         this.destroyerCount = destroyerCount;
         this.cruiserCount = cruiserCount;
         this.battleshipCount = battleshipCount;
         this.carrierCount = carrierCount;
+    }
+
+    public int GetSubmarines() {
+        return submarineCount;
+    }
+
+    public int GetDestroyers()  {
+        return destroyerCount;
+    }
+
+    public int GetCruisers() {
+        return cruiserCount;
+    }
+
+    public int GetBattleships() {
+        return battleshipCount;
+    }
+
+    public int GetCarriers() {
+        return carrierCount;
+    }
+
+    public int GetHeight() {
+        return height;
+    }
+
+    public int GetWidth() {
+        return width;
+    }
+
+    public int ShipsCount() {
+        return submarineCount + destroyerCount + cruiserCount + battleshipCount + carrierCount;
     }
 }

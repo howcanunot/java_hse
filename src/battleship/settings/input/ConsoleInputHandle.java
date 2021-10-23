@@ -26,7 +26,7 @@ public class ConsoleInputHandle {
                 System.out.println();
                 break;
             } catch (NumberFormatException exception) {
-                System.out.print("[!] Dimensions has to be integer > 0. Try again:\n");
+                System.out.print("[!] Dimensions has to be 2 integers > 0. Try again:\n");
                 data = in.nextLine().split(",");
             }
         }
