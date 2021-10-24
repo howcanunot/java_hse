@@ -3,8 +3,8 @@ package battleship.settings.input;
 import battleship.settings.GameCondition;
 
 public class CommandLineInputHandle {
-    public static GameCondition GetConditions(String[] args) {
-        int[] data = new int[7];
+    public static GameCondition getConditions(String[] args) {
+        int[] data = new int[8];
 
         for (int i = 0; i < data.length; i++) {
             try {
@@ -13,12 +13,12 @@ public class CommandLineInputHandle {
                     throw new NumberFormatException();
                 }
             } catch (NumberFormatException exception) {
-                System.out.println("[!] Incorrect command-line argument: " + args[i] + "must be an integer.\n" +
-                        "Change command-line arguments and run again.");
-                System.exit(0);
+                System.out.println("[!] Incorrect command-line argument: " + args[i] + " must be an integer.\n" +
+                        "Set configuration using console.");
+                return ConsoleInputHandle.getConditions();
             }
         }
 
-        return new GameCondition(data[0], data[1], data[2], data[3], data[4], data[5], data[6]);
+        return new GameCondition(data[0], data[1], data[6], data[5], data[4], data[3], data[2], data[7]);
     }
 }

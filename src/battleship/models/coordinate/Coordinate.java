@@ -1,20 +1,22 @@
 package battleship.models.coordinate;
 
+import battleship.models.ship.Ship;
+
 public class Coordinate {
 
     private final int x;
     private final int y;
     private boolean isFree;
-    private boolean isShip;
+    private Ship ship;
 
-    private enum status{
+    public enum status{
         NOT_FIRED,
         FIRED_MISS,
-        FIRED_HIN,
+        FIRED_HIT,
         SUNK
     }
 
-    private final status coordinateStatus;
+    private status coordinateStatus;
 
     public Coordinate(int x, int y) {
         this.x = x;
@@ -23,29 +25,54 @@ public class Coordinate {
         coordinateStatus = status.NOT_FIRED;
     }
 
-    public Coordinate(int x, int y, boolean isShip) {
+    public Coordinate(int x, int y, Ship ship) {
         this.x = x;
         this.y = y;
         isFree = false;
-        this.isShip = false;
+        this.ship = ship;
         coordinateStatus = status.NOT_FIRED;
     }
 
-    public boolean IsFree() {
+    public boolean isFree() {
         return isFree;
     }
 
-    public boolean IsShip() {
-        return isShip;
-    }
+    public boolean hasShip() { return ship == null; }
 
-    public void Take() {
-        isFree = false;
-    }
+    public Ship getShip() { return ship; }
 
-    public void SetShip() {
-        isShip = true;
-    }
+    public void take() { isFree = false; }
 
+    public void setShip(Ship ship) { this.ship = ship; }
+
+    public status getStatus() { return coordinateStatus; }
+
+    public void setSunk() { coordinateStatus = status.SUNK; }
+
+    public boolean hit(boolean useTorpedo) {
+        if (coordinateStatus != status.NOT_FIRED) {
+            System.out.println("[I] This coordinate was already hit");
+            return false;
+        }
+        if (ship == null) {
+            coordinateStatus = status.FIRED_MISS;
+            System.out.println("[I] Miss");
+            return useTorpedo;
+        } else {
+            System.out.println("[I] Hit");
+            if (!useTorpedo) {
+                coordinateStatus = status.FIRED_HIT;
+            } else {
+                ship.sunkShip();
+                System.out.println("[I] You just have sunk a  " + ship.toString() + "!");
+                return true;
+            }
+        }
+        if (ship.isAllHit()) {
+            ship.sunkShip();
+            System.out.println("[I] You just have sunk a  " + ship.toString() + "!");
+        }
+        return false;
+    }
 }
 

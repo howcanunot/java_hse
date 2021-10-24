@@ -5,7 +5,10 @@ import battleship.settings.GameCondition;
 import battleship.settings.input.CommandLineInputHandle;
 import battleship.settings.input.ConsoleInputHandle;
 import battleship.models.ship.*;
+import battleship.models.Pair;
+import battleship.settings.input.Parse;
 
+import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Game {
@@ -13,66 +16,81 @@ public class Game {
     private Ship[] ships;
     private Coordinate[][] coordinates;
 
-    public Game(GameCondition condition) {
+    private Game(GameCondition condition) {
         this.condition = condition;
-        this.ships = new Ship[this.condition.ShipsCount()];
+        this.ships = new Ship[this.condition.shipsCount()];
         int index;
 
-        for (index = 0; index < condition.GetSubmarines(); index++) {
+        for (index = 0; index < condition.getSubmarines(); index++) {
             ships[index] = new Submarine();
         }
-        for (; index < condition.GetSubmarines() + condition.GetDestroyers(); index++) {
+        for (; index < condition.getSubmarines() + condition.getDestroyers(); index++) {
             ships[index] = new Destroyer();
         }
-        for (; index < condition.GetSubmarines() + condition.GetDestroyers() + condition.GetCruisers(); index++) {
+        for (; index < condition.getSubmarines() + condition.getDestroyers() + condition.getCruisers(); index++) {
             ships[index] = new Cruiser();
         }
-        for (; index < ships.length - condition.GetCarriers(); index++) {
+        for (; index < ships.length - condition.getCarriers(); index++) {
             ships[index] = new Battleship();
         }
         for (; index < ships.length; index++) {
             ships[index] = new Carrier();
         }
-        coordinates = new Coordinate[condition.GetHeight()][condition.GetWidth()];
+        coordinates = new Coordinate[condition.getHeight()][condition.getWidth()];
         for (int i = 0; i < coordinates.length; i++) {
             for (int j = 0; j < coordinates[0].length; j++) {
                 coordinates[i][j] = new Coordinate(i, j);
             }
         }
-
-        GenerateShips();
-        Print();
     }
 
-    private void Print() {
+    private void print() {
+        boolean first;
         for (Coordinate[] coordinate : coordinates) {
+            first = true;
             for (Coordinate value : coordinate) {
-                System.out.print(value.IsShip() ? "*" : "#");
+                if (first) {
+                    System.out.print("|");
+                    first = false;
+                }
+                System.out.print(value.getStatus() == Coordinate.status.NOT_FIRED ? " " :
+                        (value.getStatus() == Coordinate.status.FIRED_MISS ? "X" :
+                                (value.getStatus() == Coordinate.status.FIRED_HIT ? "#" : "*")));
+                System.out.print("|");
             }
             System.out.println();
         }
+
+        System.out.println();
     }
 
-    private void GenerateShips() {
-        int MAX_ATTEMPTS = 1000000;
+    private boolean generateShips() {
+        int ATTEMPTS = 1000000;
         int attempts = 0;
         int index = 0;
-        while (index < ships.length && attempts < MAX_ATTEMPTS) {
+        while (index < ships.length && attempts < ATTEMPTS) {
             attempts++;
-            int i = ThreadLocalRandom.current().nextInt(0, condition.GetHeight() + 1);
-            int j = ThreadLocalRandom.current().nextInt(0, condition.GetWidth() + 1);
+            int i = ThreadLocalRandom.current().nextInt(0, condition.getHeight());
+            int j = ThreadLocalRandom.current().nextInt(0, condition.getWidth());
             boolean isVertical = ThreadLocalRandom.current().nextBoolean();
-            if (PlaceShip(index, i, j, isVertical)) {
+            if (placeShip(index, i, j, isVertical)) {
                 index++;
+            }
+
+            if (attempts % 1000 == 0 && index != ships.length) {
+                index = 0;
+                for (int row = 0; row < coordinates.length; row++) {
+                    for (int column = 0; column < coordinates[0].length; column++) {
+                        coordinates[row][column] = new Coordinate(row, column);
+                    }
+                }
             }
         }
 
-        if (attempts == MAX_ATTEMPTS) {
-            System.out.println("[!] Cannot generate battlefield.");
-        }
+        return attempts == ATTEMPTS;
     }
 
-    private boolean PlaceShip(int index, int start_i, int start_j, boolean isVertical) {
+    private boolean placeShip(int index, int start_i, int start_j, boolean isVertical) {
         int end_i, end_j;
         if (isVertical) {
             end_i = start_i + ships[index].GetSize() - 1;
@@ -82,53 +100,102 @@ public class Game {
             end_j = start_j + ships[index].GetSize() - 1;
         }
 
-        if (ValidatePlace(start_i, end_i, start_j, end_j)) {
-            ships[index].SetCoordinates(start_i, end_i, start_j, end_j);
-            SetShips(start_i, end_i, start_j, end_j);
+        if (validatePlace(start_i, end_i, start_j, end_j)) {
+            ships[index].setCoordinates(start_i, end_i, start_j, end_j, coordinates);
+            setShips(start_i, end_i, start_j, end_j, index);
             return true;
         }
         return false;
     }
 
-    private boolean ValidatePlace(int start_i, int end_i, int start_j, int end_j) {
-        if (end_i >= condition.GetHeight() || end_j >= condition.GetWidth()) {
+    private boolean validatePlace(int start_i, int end_i, int start_j, int end_j) {
+        if (end_i >= condition.getHeight() || end_j >= condition.getWidth()) {
             return false;
         }
-        start_i = Math.max(0, start_i - 1);
-        end_i = Math.min(condition.GetHeight() - 1, end_i + 1);
-        start_j = Math.max(0, start_j - 1);
-        end_j = Math.min(condition.GetWidth() - 1, end_j + 1);
 
         for (int row = start_i; row <= end_i; row++)
             for (int column = start_j; column <= end_j; column++)
-                if (!coordinates[row][column].IsFree())
+                if (!coordinates[row][column].isFree())
                     return false;
 
-        TakePlace(start_i, end_i, start_j, end_j);
+        start_i = Math.max(0, start_i - 1);
+        end_i = Math.min(condition.getHeight() - 1, end_i + 1);
+        start_j = Math.max(0, start_j - 1);
+        end_j = Math.min(condition.getWidth() - 1, end_j + 1);
+        takePlace(start_i, end_i, start_j, end_j);
         return true;
     }
 
-    private void TakePlace(int start_i, int end_i, int start_j, int end_j) {
+    private void takePlace(int start_i, int end_i, int start_j, int end_j) {
         for (int row = start_i; row <= end_i; row++) {
             for (int column = start_j; column <= end_j; column++) {
-                coordinates[row][column].Take();
+                coordinates[row][column].take();
             }
         }
     }
 
-    private void SetShips(int start_i, int end_i, int start_j, int end_j) {
+    private void setShips(int start_i, int end_i, int start_j, int end_j, int index) {
         for (int i = start_i; i <= end_i; i++) {
             for (int j = start_j; j <= end_j; j++) {
-                coordinates[i][j].SetShip();
+                coordinates[i][j].setShip(ships[index]);
             }
         }
     }
 
+    public static Game gameCreator(String[] args) {
+        Game game = null;
 
-    public static Game GameCreator(String[] args) {
-        if (args.length != 7) {
-            return new Game(ConsoleInputHandle.GetConditions());
+        do {
+            if (game != null) {
+                System.out.println("[!] Cannot generate battlefield. Try another configuration using console input\n");
+            }
+            if (args.length != 8 || game != null) {
+                game = new Game(ConsoleInputHandle.getConditions());
+            } else {
+                game = new Game(CommandLineInputHandle.getConditions(args));
+            }
+        } while(game.generateShips());
+
+        System.out.println("[I] Generation complete! Let's play!\n");
+        return game;
+    }
+
+    public void run() {
+        Scanner in = new Scanner(System.in);
+        Pair<Integer, Integer> pair = new Pair<>(0, 0);
+        while (true) {
+            System.out.println("[>] Input prefix T (optional), row and column number you want to hit, separated by comma:");
+            String[] userInput = in.nextLine().split(",");
+            if (Parse.tryParseHitCoordinate(userInput, pair, condition.getHeight(), condition.getWidth()) &&
+                    handleHit(pair, userInput.length == 3)) {
+                print();
+                int sunkCount = 0;
+                for (var ship : ships) {
+                    if (ship.isAllSunk()) {
+                        sunkCount++;
+                    }
+                }
+                if (sunkCount == ships.length) {
+                    break;
+                }
+            }
         }
-        return new Game(CommandLineInputHandle.GetConditions(args));
+
+        System.out.println("[I] All ships destroyed. You won!");
+        System.exit(0);
+    }
+
+    private boolean handleHit(Pair<Integer, Integer> pair, boolean useTorpedo) {
+        if (condition.getTorpedoes() == 0 && useTorpedo) {
+            System.out.println("[!] No torpedoes available");
+            return false;
+        }
+        int row = pair.first, column = pair.second;
+        boolean isTorpedoUsed = coordinates[row][column].hit(useTorpedo);
+        if (isTorpedoUsed) {
+            condition.decreaseTorpedo();
+            System.out.println("[I] You used torpedo, " + condition.getTorpedoes() + " left");
+        }
+        return true;
     }
 }
