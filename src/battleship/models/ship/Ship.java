@@ -70,4 +70,13 @@ abstract public class Ship {
         }
     }
 
+    /**
+     * set all ship's coordinate NOT_FIRED
+     */
+    public void hide() {
+        for (var coord : shipCoords) {
+            coord.recovery();
+        }
+    }
+
 }

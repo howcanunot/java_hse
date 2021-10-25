@@ -82,10 +82,6 @@ public class Coordinate {
      * @return true is torpedo used else false
      */
     public boolean hit(boolean useTorpedo) {
-        if (coordinateStatus != status.NOT_FIRED) {
-            System.out.println("[I] This coordinate was already hit");
-            return false;
-        }
         if (ship == null) {
             coordinateStatus = status.FIRED_MISS;
             System.out.println("[I] Miss");
@@ -105,6 +101,13 @@ public class Coordinate {
             System.out.println("[I] You just have sunk a  " + ship.toString() + "!");
         }
         return false;
+    }
+
+    /**
+     * Set coordinate NOT_FIRED.
+     */
+    public void recovery() {
+        coordinateStatus = status.NOT_FIRED;
     }
 }
 

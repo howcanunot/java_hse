@@ -8,6 +8,7 @@ import battleship.models.ship.*;
 import battleship.models.Pair;
 import battleship.settings.input.Parse;
 
+import java.util.Locale;
 import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -15,6 +16,8 @@ public class Game {
     private GameCondition condition;
     private Ship[] ships;
     private Coordinate[][] coordinates;
+    private boolean recovery;
+    private Ship lastHitSip;
 
     private Game(GameCondition condition) {
         this.condition = condition;
@@ -75,7 +78,7 @@ public class Game {
     }
 
     /**
-     * this method decides which way create game conditions.
+     * this method decides how create game conditions.
      * if command-line not correct user have to use console input.
      * @param args command-line arguments
      * @return game object with generated ships
@@ -94,9 +97,22 @@ public class Game {
             }
         } while(game.generateShips());
 
-        System.out.println("[I] Generation complete! Let's play!\n");
+        boolean isRecovery = isRecoveryMode();
+        game.setRecovery(isRecovery);
+        System.out.println("[I] Generation complete! Let's play!");
+        System.out.println("[I] " + (isRecovery ? "recovery mode enable\n" : "recovery mode disable\n"));
         return game;
     }
+
+    private static boolean isRecoveryMode() {
+        System.out.println("[>] Do you want to set recovery mode? [Y/another string]:");
+        var in = new Scanner(System.in);
+        String result = in.nextLine().trim();
+
+        return result.equals("Y") || result.equals("y");
+    }
+
+    private void setRecovery(boolean result) { recovery = result; }
 
     private void print() {
         boolean first;
@@ -197,15 +213,27 @@ public class Game {
     }
 
     private boolean handleHit(Pair<Integer, Integer> pair, boolean useTorpedo) {
-        if (condition.getTorpedoes() == 0 && useTorpedo) {
+        if ((condition.getTorpedoes() == 0 && useTorpedo)) {
             System.out.println("[!] No torpedoes available");
             return false;
         }
         int row = pair.first, column = pair.second;
+        if (coordinates[row][column].getStatus() != Coordinate.status.NOT_FIRED) {
+            System.out.println("[I] This coordinate was already hit");
+            return false;
+        }
+        if (recovery && lastHitSip != coordinates[row][column].getShip() && lastHitSip != null) {
+            lastHitSip.hide();
+            System.out.println("[I] You missed last ship. Ship was recover");
+        }
+        lastHitSip = coordinates[row][column].getShip();
         boolean isTorpedoUsed = coordinates[row][column].hit(useTorpedo);
         if (isTorpedoUsed) {
             condition.decreaseTorpedo();
             System.out.println("[I] You used torpedo, " + condition.getTorpedoes() + " left");
+        }
+        if (coordinates[row][column].getStatus() == Coordinate.status.SUNK) {
+            lastHitSip = null;
         }
         return true;
     }
