@@ -8,7 +8,6 @@ import battleship.models.ship.*;
 import battleship.models.Pair;
 import battleship.settings.input.Parse;
 
-import java.util.Locale;
 import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -163,11 +162,11 @@ public class Game {
     private boolean placeShip(int index, int start_i, int start_j, boolean isVertical) {
         int end_i, end_j;
         if (isVertical) {
-            end_i = start_i + ships[index].GetSize() - 1;
+            end_i = start_i + ships[index].getSize() - 1;
             end_j = start_j;
         } else {
             end_i = start_i;
-            end_j = start_j + ships[index].GetSize() - 1;
+            end_j = start_j + ships[index].getSize() - 1;
         }
 
         if (validatePlace(start_i, end_i, start_j, end_j)) {

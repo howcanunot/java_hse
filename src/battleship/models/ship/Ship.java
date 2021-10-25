@@ -10,7 +10,7 @@ abstract public class Ship {
      *
      * @return ship size
      */
-    public int GetSize() {
+    public int getSize() {
         return size;
     }
 
