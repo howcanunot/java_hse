@@ -20,7 +20,7 @@ abstract public class Ship {
      * @param end_i right-down row corner
      * @param start_j left-up column corner
      * @param end_j right-down column corner
-     * @param coordinates
+     * @param coordinates field
      */
     public void setCoordinates(int start_i, int end_i, int start_j, int end_j, Coordinate[][] coordinates) {
         int index = 0;

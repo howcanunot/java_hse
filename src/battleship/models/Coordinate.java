@@ -61,7 +61,7 @@ public class Coordinate {
 
     /**
      * bind ship on coordinate
-     * @param ship
+     * @param ship to bind
      */
     public void setShip(Ship ship) { this.ship = ship; }
 
