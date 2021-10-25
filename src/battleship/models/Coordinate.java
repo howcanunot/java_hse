@@ -1,4 +1,4 @@
-package battleship.models.coordinate;
+package battleship.models;
 
 import battleship.models.ship.Ship;
 
@@ -33,22 +33,54 @@ public class Coordinate {
         coordinateStatus = status.NOT_FIRED;
     }
 
+    /**
+     *
+     * @return true is coordinate free else false
+     */
     public boolean isFree() {
         return isFree;
     }
 
+    /**
+     *
+     * @return true if coordinate has ship
+     */
+
     public boolean hasShip() { return ship == null; }
 
+    /**
+     *
+     * @return ship on this coordinate
+     */
     public Ship getShip() { return ship; }
 
+    /**
+     * this set coordinate not free
+     */
     public void take() { isFree = false; }
 
+    /**
+     * bind ship on coordinate
+     * @param ship
+     */
     public void setShip(Ship ship) { this.ship = ship; }
 
+    /**
+     *
+     * @return status of coordinate
+     */
     public status getStatus() { return coordinateStatus; }
 
+    /**
+     * set coordinate as a sunk
+     */
     public void setSunk() { coordinateStatus = status.SUNK; }
 
+    /**
+     * hit coordinate handle
+     * @param useTorpedo is torpedo was use
+     * @return true is torpedo used else false
+     */
     public boolean hit(boolean useTorpedo) {
         if (coordinateStatus != status.NOT_FIRED) {
             System.out.println("[I] This coordinate was already hit");

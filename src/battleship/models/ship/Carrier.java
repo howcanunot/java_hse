@@ -1,6 +1,6 @@
 package battleship.models.ship;
 
-import battleship.models.coordinate.Coordinate;
+import battleship.models.Coordinate;
 
 public class Carrier extends Ship{
     public Carrier() {
@@ -8,6 +8,10 @@ public class Carrier extends Ship{
         shipCoords = new Coordinate[size];
     }
 
+    /**
+     *
+     * @return class name
+     */
     @Override
     public String toString() {
         return "Carrier";

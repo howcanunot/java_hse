@@ -6,6 +6,10 @@ import battleship.settings.GameCondition;
 import java.util.Scanner;
 
 public class ConsoleInputHandle {
+    /**
+     * handle console input
+     * @return GameCondition object with all game settings
+     */
     public static GameCondition getConditions() {
         System.out.println("[>] Enter the dimensions of the battleground, separated by comma (rows count, cells count):");
         Scanner in = new Scanner(System.in);

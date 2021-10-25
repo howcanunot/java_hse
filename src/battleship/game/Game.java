@@ -1,6 +1,6 @@
 package battleship.game;
 
-import battleship.models.coordinate.Coordinate;
+import battleship.models.Coordinate;
 import battleship.settings.GameCondition;
 import battleship.settings.input.CommandLineInputHandle;
 import battleship.settings.input.ConsoleInputHandle;
@@ -42,6 +42,60 @@ public class Game {
                 coordinates[i][j] = new Coordinate(i, j);
             }
         }
+    }
+
+    /**
+     * method starts game.
+     * every turn user take row and column he wants to hit.
+     * game ends when all ships sunk.
+     */
+    public void run() {
+        Scanner in = new Scanner(System.in);
+        Pair<Integer, Integer> pair = new Pair<>(0, 0);
+        while (true) {
+            System.out.println("[>] Input prefix T (optional), row and column number you want to hit, separated by comma:");
+            String[] userInput = in.nextLine().split(",");
+            if (Parse.tryParseHitCoordinate(userInput, pair, condition.getHeight(), condition.getWidth()) &&
+                    handleHit(pair, userInput.length == 3)) {
+                print();
+                int sunkCount = 0;
+                for (var ship : ships) {
+                    if (ship.isAllSunk()) {
+                        sunkCount++;
+                    }
+                }
+                if (sunkCount == ships.length) {
+                    break;
+                }
+            }
+        }
+
+        System.out.println("[I] All ships destroyed. You won!");
+        System.exit(0);
+    }
+
+    /**
+     * this method decides which way create game conditions.
+     * if command-line not correct user have to use console input.
+     * @param args command-line arguments
+     * @return game object with generated ships
+     */
+    public static Game gameCreator(String[] args) {
+        Game game = null;
+
+        do {
+            if (game != null) {
+                System.out.println("[!] Cannot generate battlefield. Try another configuration using console input\n");
+            }
+            if (args.length != 8 || game != null) {
+                game = new Game(ConsoleInputHandle.getConditions());
+            } else {
+                game = new Game(CommandLineInputHandle.getConditions(args));
+            }
+        } while(game.generateShips());
+
+        System.out.println("[I] Generation complete! Let's play!\n");
+        return game;
     }
 
     private void print() {
@@ -140,49 +194,6 @@ public class Game {
                 coordinates[i][j].setShip(ships[index]);
             }
         }
-    }
-
-    public static Game gameCreator(String[] args) {
-        Game game = null;
-
-        do {
-            if (game != null) {
-                System.out.println("[!] Cannot generate battlefield. Try another configuration using console input\n");
-            }
-            if (args.length != 8 || game != null) {
-                game = new Game(ConsoleInputHandle.getConditions());
-            } else {
-                game = new Game(CommandLineInputHandle.getConditions(args));
-            }
-        } while(game.generateShips());
-
-        System.out.println("[I] Generation complete! Let's play!\n");
-        return game;
-    }
-
-    public void run() {
-        Scanner in = new Scanner(System.in);
-        Pair<Integer, Integer> pair = new Pair<>(0, 0);
-        while (true) {
-            System.out.println("[>] Input prefix T (optional), row and column number you want to hit, separated by comma:");
-            String[] userInput = in.nextLine().split(",");
-            if (Parse.tryParseHitCoordinate(userInput, pair, condition.getHeight(), condition.getWidth()) &&
-                    handleHit(pair, userInput.length == 3)) {
-                print();
-                int sunkCount = 0;
-                for (var ship : ships) {
-                    if (ship.isAllSunk()) {
-                        sunkCount++;
-                    }
-                }
-                if (sunkCount == ships.length) {
-                    break;
-                }
-            }
-        }
-
-        System.out.println("[I] All ships destroyed. You won!");
-        System.exit(0);
     }
 
     private boolean handleHit(Pair<Integer, Integer> pair, boolean useTorpedo) {

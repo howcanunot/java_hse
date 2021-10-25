@@ -5,6 +5,12 @@ import battleship.models.Pair;
 import java.util.Objects;
 
 public class Parse {
+    /**
+     *
+     * @param input user input
+     * @param pair parse input result
+     * @return true if parse was success else false
+     */
     public static boolean tryParseDimensions(String[] input, Pair<Integer, Integer> pair) {
         try {
             if (input.length != 2) {
@@ -20,7 +26,12 @@ public class Parse {
             return false;
         }
     }
-
+    /**
+     *
+     * @param input user input
+     * @param ships parse input result
+     * @return true if parse was success else false
+     */
     public static boolean tryParseShips(String[] input, int[] ships) {
         try {
             if (input.length != 6) {
@@ -52,6 +63,14 @@ public class Parse {
         }
     }
 
+    /**
+     *
+     * @param input user input
+     * @param pair parse input result
+     * @param height battlefield height
+     * @param width battlefield width
+     * @return true if parse was success else false
+     */
     public static boolean tryParseHitCoordinate(String[] input, Pair<Integer, Integer> pair,
                                                 int height, int width) {
         try {

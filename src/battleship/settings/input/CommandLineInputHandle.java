@@ -3,6 +3,11 @@ package battleship.settings.input;
 import battleship.settings.GameCondition;
 
 public class CommandLineInputHandle {
+    /**
+     * handle command-line input
+     * @param args command-line arguments
+     * @return GameCondition object with all game settings
+     */
     public static GameCondition getConditions(String[] args) {
         int[] data = new int[8];
 

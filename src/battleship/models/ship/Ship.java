@@ -1,15 +1,27 @@
 package battleship.models.ship;
 
-import battleship.models.coordinate.Coordinate;
+import battleship.models.Coordinate;
 
 abstract public class Ship {
     protected int size;
     protected Coordinate[] shipCoords;
 
+    /**
+     *
+     * @return ship size
+     */
     public int GetSize() {
         return size;
     }
 
+    /**
+     * bind ships coordinate
+     * @param start_i left-up row corner
+     * @param end_i right-down row corner
+     * @param start_j left-up column corner
+     * @param end_j right-down column corner
+     * @param coordinates
+     */
     public void setCoordinates(int start_i, int end_i, int start_j, int end_j, Coordinate[][] coordinates) {
         int index = 0;
         for (int i = start_i; i <= end_i; i++) {
@@ -19,6 +31,10 @@ abstract public class Ship {
         }
     }
 
+    /**
+     *
+     * @return true if all ship's coordinates was hit
+     */
     public boolean isAllHit() {
         int hitCount = 0;
         for (var coord : shipCoords) {
@@ -30,6 +46,10 @@ abstract public class Ship {
         return hitCount == shipCoords.length;
     }
 
+    /**
+     *
+     * @return true if all ship's coordinate already sunk
+     */
     public boolean isAllSunk() {
         int sunkCount = 0;
         for (var coord : shipCoords) {
@@ -41,6 +61,9 @@ abstract public class Ship {
         return sunkCount == shipCoords.length;
     }
 
+    /**
+     * make all ship sunk
+     */
     public void sunkShip() {
         for (var coord : shipCoords) {
             coord.setSunk();
